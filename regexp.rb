@@ -44,22 +44,63 @@ def pattern_to_regexp(pattern)
 end
 
 
-def find_matching_words(pattern, words)
+def find_matching_words_regexp(pattern, words)
   regexp = pattern_to_regexp(pattern)
   words.select { |word| regexp.match(word) }
 end
 
-def test(pattern, words, answers)
-  puts "----- pattern: #{pattern} -----"
-  puts "regexp: #{pattern_to_regexp(pattern).to_s}"
-  matched =  find_matching_words(pattern, words)
+
+# 正規表現使わないやり方
+def find_matching_words_noregexp(pattern, words_list)
+  words_list.select do |word|
+    next if word.length != pattern.length
+
+    char_map = {}
+    match = true
+
+    pattern.chars.zip(word.chars).each do |p, w|
+      if char_map.key?(p) && char_map[p] != w
+        match = false
+        break
+      elsif char_map.value?(w) && !char_map.key?(p)
+        match = false
+        break
+      else
+        char_map[p] = w
+      end
+    end
+
+    match
+  end
+end
+
+def test_regexp(pattern, words, answers)
+  # puts "regexp: #{pattern_to_regexp(pattern).to_s}"
+  matched = find_matching_words_regexp(pattern, words)
   if matched == answers
-    puts "test: success!"
+    puts "test_regexp  : success!"
   else
-    puts "test: failure!"
+    puts "test_regexp  : failure!"
     puts "  matched: #{matched}"
     puts "  answers: #{answers}"
   end
+end
+def test_noregexp(pattern, words, answers)
+  matched = find_matching_words_noregexp(pattern, words)
+  if matched == answers
+    puts "test_noregexp: success!"
+  else
+    puts "test_noregexp: failure!"
+    puts "  matched: #{matched}"
+    puts "  answers: #{answers}"
+  end
+end
+
+def test(pattern, words, answers)
+  puts "===== pattern: #{pattern} ====="
+  test_regexp(pattern, words, answers)
+  test_noregexp(pattern, words, answers)
+  puts
 end
 
 
